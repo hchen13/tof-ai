@@ -23,6 +23,7 @@ module.exports = merge(commonConfig, {
         contentBase: path.resolve(__dirname, "../build"),
         host: "localhost", // 可以使用手机访问
         port: 8080,
+        host: '172.20.10.5',
         https:true,
         historyApiFallback: true, //  该选项的作用所有的404都连接到index.html
         proxy: {

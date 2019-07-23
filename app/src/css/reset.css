@@ -56,11 +56,12 @@ body{
 }
 
 video{
-	/* display: none; */
+	display: none;
 	/* object-fit:fill; */
 	background-color: red;
   
 }
+
 #canvas,#imgCanvas{
   position: fixed;
   left:0;
