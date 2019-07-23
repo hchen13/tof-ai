@@ -1,6 +1,6 @@
 import tensorflow as tf
 from tensorflow.python.keras import Model
-from tensorflow.python.keras.layers import Flatten, GlobalAveragePooling2D, GlobalMaxPooling2D, Dense
+from tensorflow.python.keras.layers import Flatten, GlobalAveragePooling2D, GlobalMaxPooling2D, Dense, Dropout
 
 
 class GestureNet:
@@ -21,9 +21,11 @@ class GestureNet:
         for units in dense_layers:
             init = tf.keras.initializers.VarianceScaling()
             x = Dense(units, activation='relu', kernel_initializer=init)(x)
+            x = Dropout(.3)(x)
 
         init = tf.keras.initializers.VarianceScaling()
         predictions = Dense(num_classes, activation='softmax', kernel_initializer=init, use_bias=False)(x)
+        self.base_model = base_model
         self.model = Model(base_model.input, predictions)
 
     def _get_base_model(self, input_shape, **params):
