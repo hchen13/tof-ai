@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "test": "concurrently \"http-server -p 80\" \"http-server -p 443 -S -C ./ssl.crt -K ./ssl.key\" "
+  },
+  "dependencies": {
+    "@tensorflow-models/coco-ssd": "^1.1.1"
+  }
+}
