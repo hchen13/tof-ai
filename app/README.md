@@ -1,4 +1,6 @@
 
-  ```
-  http-server --cert ./key/server.crt --key ./key/server.key --ssl --cors -p 443
-  ```
+# 快速开始
+```javascript
+yarn install
+npm run dev            
+```

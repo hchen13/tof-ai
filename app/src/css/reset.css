@@ -57,12 +57,13 @@ body{
 
 video{
 	/* display: none; */
-	object-fit:fill;
+	/* object-fit:fill; */
+	background-color: red;
   
 }
 #canvas,#imgCanvas{
-  position: absolute;
+  position: fixed;
   left:0;
-  top:22px;
+  top:0;
   pointer-events: none;
 }

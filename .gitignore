@@ -47,6 +47,8 @@ coverage.xml
 *.cover
 .hypothesis/
 .pytest_cache/
+yarn.*
+yarn-error.*
 
 # Translations
 *.mo
