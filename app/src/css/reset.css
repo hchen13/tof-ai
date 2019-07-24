@@ -56,15 +56,27 @@ body{
 }
 
 video{
-	display: none;
+	/* display: none; */
 	/* object-fit:fill; */
 	background-color: red;
   
 }
 
-#canvas,#imgCanvas{
-  position: fixed;
+#canvas{
+  position: absolute;
   left:0;
   top:0;
   pointer-events: none;
+}
+body{
+	position: relative;
+}
+#content{
+	position: relative;
+}
+
+#msg{
+	position: absolute;
+	font-size: 12px;
+	right:0;
 }
