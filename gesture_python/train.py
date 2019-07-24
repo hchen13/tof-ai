@@ -1,6 +1,8 @@
 import os
 import shutil
 
+import numpy as np
+from sklearn.metrics import classification_report
 from tensorflow.python.keras.callbacks import TensorBoard
 
 import settings
@@ -14,15 +16,16 @@ if __name__ == '__main__':
         settings.DATA_ROOT,
         width=settings.IMAGE_WIDTH,
         batch_size=settings.BATCH_SIZE,
-        preprocess_func=tf.keras.applications.mobilenet_v2.preprocess_input,
-        split=.1,
+        preprocess_func=tf.keras.applications.mobilenet.preprocess_input,
+        split=.2,
         shuffle=True
     )
     _x, _y = valid_gen[0]
 
     print('\n[info] creating GestureNet model...')
-    engine = GestureNet(train_gen.num_classes, [100], input_shape=_x.shape[1:])
+    engine = GestureNet(train_gen.num_classes, dense_layers=settings.TRAINING['dense_layers'], input_shape=_x.shape[1:])
     engine.base_model.trainable = False
+    engine.model.summary()
     opt = tf.keras.optimizers.Adam(learning_rate=settings.TRAINING['alpha'])
     engine.model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['acc'])
 
@@ -40,12 +43,27 @@ if __name__ == '__main__':
           "tensorboard --logdir=.logs")
     monitor = TensorBoard(
         log_dir=log_dir,
-        write_graph=True,
-        histogram_freq=1
+        write_graph=False,
+        histogram_freq=0
     )
 
     print('\n[info] start training...')
-    engine.model.fit(train_gen, validation_data=valid_gen, epochs=settings.TRAINING['epochs'], callbacks=[monitor])
+    H = engine.model.fit(train_gen, validation_data=valid_gen, epochs=settings.TRAINING['epochs'], callbacks=[monitor])
 
+    predictions = engine.model.predict(_x)
+    report = classification_report(_y.argmax(axis=1), predictions.argmax(axis=1), target_names=valid_gen.class_indices.keys())
+    print(report)
+
+    accuracy = np.mean(_y.argmax(axis=1) == predictions.argmax(axis=1))
+
+    if accuracy < .53:
+        exit()
     print('\n[info] training complete, saving model...')
-    engine.model.save('./models/gesturenet/1', save_format='tf')
+
+    if not os.path.exists('./exports/keras_model'):
+        os.makedirs('./exports/keras_model')
+
+    if tf.__version__ >= '2.0.0-beta1':
+        engine.model.save('./exports/saved_model/gesturenet/1', save_format='tf')
+
+    engine.model.save('./exports/keras_model/gesturenet.h5', save_format='h5')

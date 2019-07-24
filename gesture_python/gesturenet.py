@@ -2,6 +2,8 @@ import tensorflow as tf
 from tensorflow.python.keras import Model
 from tensorflow.python.keras.layers import Flatten, GlobalAveragePooling2D, GlobalMaxPooling2D, Dense, Dropout
 
+import settings
+
 
 class GestureNet:
     def __init__(self, num_classes, dense_layers=None, input_shape=(224, 224, 3), top_method='flatten', mobilenet_params=None):
@@ -18,18 +20,26 @@ class GestureNet:
             'max': GlobalMaxPooling2D()
         }[top_method](bottleneck)
 
+        x = Dropout(settings.TRAINING['drop_rate'])(x)
+
         for units in dense_layers:
             init = tf.keras.initializers.VarianceScaling()
             x = Dense(units, activation='relu', kernel_initializer=init)(x)
-            x = Dropout(.3)(x)
+            x = Dropout(settings.TRAINING['drop_rate'])(x)
 
         init = tf.keras.initializers.VarianceScaling()
-        predictions = Dense(num_classes, activation='softmax', kernel_initializer=init, use_bias=False)(x)
+        predictions = Dense(
+            num_classes,
+            activation='softmax',
+            kernel_initializer=init,
+            use_bias=False,
+            kernel_regularizer=tf.keras.regularizers.l2(settings.TRAINING['l2_reg'])
+        )(x)
         self.base_model = base_model
         self.model = Model(base_model.input, predictions)
 
     def _get_base_model(self, input_shape, **params):
-        _base = tf.keras.applications.MobileNetV2
+        _base = tf.keras.applications.MobileNet
         return _base(include_top=False, input_shape=input_shape, **params)
 
 
