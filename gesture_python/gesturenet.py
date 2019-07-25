@@ -20,20 +20,18 @@ class GestureNet:
             'max': GlobalMaxPooling2D()
         }[top_method](bottleneck)
 
-        x = Dropout(settings.TRAINING['drop_rate'])(x)
+        x = Dropout(settings.MODEL_CONFIG['drop_rate'])(x)
 
         for units in dense_layers:
-            init = tf.keras.initializers.VarianceScaling()
-            x = Dense(units, activation='relu', kernel_initializer=init)(x)
-            x = Dropout(settings.TRAINING['drop_rate'])(x)
+            x = Dense(units, activation='relu', kernel_initializer=tf.keras.initializers.VarianceScaling())(x)
+            x = Dropout(settings.MODEL_CONFIG['drop_rate'])(x)
 
-        init = tf.keras.initializers.VarianceScaling()
         predictions = Dense(
             num_classes,
             activation='softmax',
-            kernel_initializer=init,
+            kernel_initializer=tf.keras.initializers.VarianceScaling(),
             use_bias=False,
-            kernel_regularizer=tf.keras.regularizers.l2(settings.TRAINING['l2_reg'])
+            kernel_regularizer=tf.keras.regularizers.l2(settings.MODEL_CONFIG['l2_reg'])
         )(x)
         self.base_model = base_model
         self.model = Model(base_model.input, predictions)

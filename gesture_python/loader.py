@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('TkAgg')
 import tensorflow as tf
 from tensorflow.python.keras.preprocessing.image import ImageDataGenerator
 
@@ -53,10 +55,17 @@ if __name__ == '__main__':
     x, y = valid[0]
     y = y.argmax(axis=1)
     labels = valid.class_indices
-    print(labels)
     d = []
     for name, idx in labels.items():
         d.append((idx, name))
     d = dict(d)
-    titles = [d[l] for l in y]
+
+    for epoch in range(3):
+        for i in range(len(train)):
+            x, y = train[i]
+            if i == 0:
+                titles = [d[l] for l in y.argmax(axis=1)]
+                display_image(x, titles, col=8, width=22)
+
+
     # display_image(x, titles, col=8, width=20)

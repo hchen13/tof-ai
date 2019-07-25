@@ -23,10 +23,9 @@ if __name__ == '__main__':
     _x, _y = valid_gen[0]
 
     print('\n[info] creating GestureNet model...')
-    engine = GestureNet(train_gen.num_classes, dense_layers=settings.TRAINING['dense_layers'], input_shape=_x.shape[1:])
+    engine = GestureNet(train_gen.num_classes, dense_layers=settings.MODEL_CONFIG['dense_layers'], input_shape=_x.shape[1:])
     engine.base_model.trainable = False
-    engine.model.summary()
-    opt = tf.keras.optimizers.Adam(learning_rate=settings.TRAINING['alpha'])
+    opt = tf.keras.optimizers.Adam(learning_rate=settings.TRAINING['alpha'], beta_1=.99, decay=.001/settings.TRAINING['epochs'])
     engine.model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['acc'])
 
     print("\n[info] checking initial state:")
@@ -34,13 +33,14 @@ if __name__ == '__main__':
     print("\tinitial loss: {:.3f}\n\tinitial accuracy: {:.2f}%".format(loss0, acc0 * 100))
 
     experiment_name = 'exp1'
-    log_dir = os.path.join('./.logs', experiment_name)
+    log_dir = os.path.join('./logs', experiment_name)
     if os.path.exists(log_dir):
         print("\n[note] experiment `{}` logs already exist, overwrite!".format(experiment_name))
         shutil.rmtree(log_dir)
 
-    print("\n[info] setting up tensorboard monitoring,\ncheck status by starting tensorboard local server with:\n"
-          "tensorboard --logdir=.logs")
+    print("\n[info] setting up tensorboard monitoring,\n"
+          "check status by starting tensorboard local server with:\n"
+          "tensorboard --logdir={}".format('./logs'))
     monitor = TensorBoard(
         log_dir=log_dir,
         write_graph=False,
@@ -56,6 +56,7 @@ if __name__ == '__main__':
 
     accuracy = np.mean(_y.argmax(axis=1) == predictions.argmax(axis=1))
 
+    # exit if the accuracy is too low
     if accuracy < .53:
         exit()
     print('\n[info] training complete, saving model...')
@@ -63,6 +64,7 @@ if __name__ == '__main__':
     if not os.path.exists('./exports/keras_model'):
         os.makedirs('./exports/keras_model')
 
+    # also save a copy of tf 2.0 saved_model format
     if tf.__version__ >= '2.0.0-beta1':
         engine.model.save('./exports/saved_model/gesturenet/1', save_format='tf')
 

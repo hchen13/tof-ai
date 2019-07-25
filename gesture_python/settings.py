@@ -8,11 +8,15 @@ else:
 IMAGE_WIDTH = 224
 BATCH_SIZE = 64
 
+# model params
+MODEL_CONFIG = {
+    'drop_rate': .5,
+    'l2_reg': .2,
+    'dense_layers': [100]
+}
+
 # training params
 TRAINING = {
-    'alpha': 3e-5,
-    'epochs': 100,
-    'drop_rate': .7,
-    'l2_reg': .5,
-    'dense_layers': [100],
+    'alpha': 7e-5,
+    'epochs': 50,
 }
